@@ -486,10 +486,11 @@ simulated function Weapon GetSlotWeapon(byte F, int hand, optional Weapon curren
         }
 
         if (newWeapon != none && newWeapon.Inventory != none)
-        {
             newWeapon = newWeapon.Inventory.WeaponChange(F, true);
-        }
         else
+            newWeapon = none;
+
+        if (newWeapon == none)
         {
             if (bLooped) // already looped, no use looping again
                 break;
