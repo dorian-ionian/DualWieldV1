@@ -654,7 +654,8 @@ event Closed(GUIComponent Sender, bool bCancelled)
     
     super.Closed(Sender, bCancelled);
 
-    if (!bCancelled)
+    // Remote clients get the server's rules replicated; only the server (or an admin) may save them.
+    if (!bCancelled && CanEditRules())
     {
         for (i = 0; i < DeletedProfiles.Length; ++i)
             DeletedProfiles[i].ClearConfig();
