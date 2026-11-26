@@ -16,7 +16,7 @@ replication
     
     // functions server -> client
     reliable if (Role == ROLE_Authority)
-        ClientBeginGroup, ClientReceiveWeapons, ClientReceiveFilter, ClientReceiveGroupCount,         ClientSetProfileName, ClientSetProfileFlags, ClientSetBlockedClasses;}
+        ClientBeginGroup, ClientReceiveWeapons, ClientReceiveFilter, ClientReceiveGroupCount,         ClientSetProfileName, ClientSetProfileFlags,         ClientSetBlockedClasses, ClientSetBlockedClassPaths;}
 
 function Initialize(string profileName)
 {
@@ -42,6 +42,7 @@ function Initialize(string profileName)
         Profile = class'dw_WeaponsProfile'.static.GetProfile(profileName);
 
     Profile.SetBlockedClasses(class'dw_WeaponsModule'.default.BlockedBaseClasses);
+    Profile.SetBlockedClassPaths(class'dw_WeaponsModule'.default.BlockedClassPaths);
 
     if (Level.NetMode != NM_Standalone)
     {
@@ -50,6 +51,7 @@ function Initialize(string profileName)
         ClientSetProfileName(profileName);
         ClientSetProfileFlags(Profile.bExcludeMode, Profile.bStrictNaming);
         ClientSetBlockedClasses(class'dw_WeaponsModule'.default.BlockedBaseClasses);
+        ClientSetBlockedClassPaths(class'dw_WeaponsModule'.default.BlockedClassPaths);
 
         //if (!Profile.IsPreset)
         //{ // profile is not a preset, gradually replicate it to the client
@@ -174,6 +176,12 @@ simulated function ClientSetBlockedClasses(string list)
 {
     if (Role < ROLE_Authority && Profile != none)
         Profile.SetBlockedClasses(list);
+}
+
+simulated function ClientSetBlockedClassPaths(string list)
+{
+    if (Role < ROLE_Authority && Profile != none)
+        Profile.SetBlockedClassPaths(list);
 }
 
 // Replicate group count to client, to ensure count is correct

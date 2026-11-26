@@ -9,6 +9,10 @@ var globalconfig string ConfiguredProfileName;
 // Comma-separated base class names that may never be dual-wielded, in any profile.
 // Matched with IsA, so sub-classes are included. Example: KFWeapon,RFWeapon
 var globalconfig string BlockedBaseClasses;
+
+// Comma-separated package-qualified class names that may never be dual-wielded, in any profile.
+// Matched exactly, so sub-classes are included. Example: XWeapons.Minigun
+var globalconfig string BlockedClassPaths;
 var dw_WeaponsProfile CurrentProfile;
 
 

@@ -35,12 +35,19 @@ var transient name tempname;
 // Base classes that may never be dual-wielded (from BlockedBaseClasses in the INI).
 var transient array<name> BlockedClasses;
 
+// Package-qualified classes that may never be dual-wielded (from BlockedClassPaths in the INI).
+var transient array<class> BlockedClassRefs;
+
 function bool IsBlockedClass(Weapon w)
 {
     local int i;
 
     for (i = 0; i < BlockedClasses.Length; ++i)
         if (w.IsA(BlockedClasses[i]))
+            return true;
+
+    for (i = 0; i < BlockedClassRefs.Length; ++i)
+        if (ClassIsChildOf(w.Class, BlockedClassRefs[i]))
             return true;
 
     return false;
@@ -290,14 +297,13 @@ function AddWeaponToGroup(int num, string weaponName)
     WeaponGroups[num].Weapons[n] = tempname;
 }
 
-// Parses a comma-separated list of base class names (spaces around names are ignored).
-function SetBlockedClasses(string list)
+// Takes the next trimmed entry off a comma-separated list. Returns "" when none is left.
+function string PopListPart(out string list)
 {
     local int i;
     local string part;
 
-    BlockedClasses.Length = 0;
-    while (list != "")
+    while (part == "" && list != "")
     {
         i = InStr(list, ",");
         if (i != -1)
@@ -315,10 +321,20 @@ function SetBlockedClasses(string list)
             part = Mid(part, 1);
         while (Len(part) > 0 && Right(part, 1) == " ")
             part = Left(part, Len(part)-1);
+    }
 
-        if (part == "")
-            continue;
+    return part;
+}
 
+// Parses a comma-separated list of base class names (spaces around names are ignored).
+function SetBlockedClasses(string list)
+{
+    local string part;
+
+    BlockedClasses.Length = 0;
+    part = PopListPart(list);
+    while (part != "")
+    {
         // string -> name conversion of a variable needs SetPropertyText
         SetPropertyText("tempname", part);
         if (tempname != '')
@@ -326,6 +342,28 @@ function SetBlockedClasses(string list)
             BlockedClasses.Length = BlockedClasses.Length + 1;
             BlockedClasses[BlockedClasses.Length-1] = tempname;
         }
+        part = PopListPart(list);
+    }
+}
+
+// Parses a comma-separated list of package-qualified class names, e.g. XWeapons.Minigun.
+// Names that don't load are skipped.
+function SetBlockedClassPaths(string list)
+{
+    local string part;
+    local class c;
+
+    BlockedClassRefs.Length = 0;
+    part = PopListPart(list);
+    while (part != "")
+    {
+        c = class(DynamicLoadObject(part, class'Class', true));
+        if (c != none)
+        {
+            BlockedClassRefs.Length = BlockedClassRefs.Length + 1;
+            BlockedClassRefs[BlockedClassRefs.Length-1] = c;
+        }
+        part = PopListPart(list);
     }
 }
 
