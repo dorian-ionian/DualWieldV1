@@ -47,7 +47,7 @@ function bool IsBlockedClass(Weapon w)
             return true;
 
     for (i = 0; i < BlockedClassRefs.Length; ++i)
-        if (ClassIsChildOf(w.Class, BlockedClassRefs[i]))
+        if (w.Class == BlockedClassRefs[i])
             return true;
 
     return false;

@@ -11,7 +11,7 @@ var globalconfig string ConfiguredProfileName;
 var globalconfig string BlockedBaseClasses;
 
 // Comma-separated package-qualified class names that may never be dual-wielded, in any profile.
-// Matched exactly, so sub-classes are included. Example: XWeapons.Minigun
+// Matched exactly, so sub-classes are not blocked. Example: XWeapons.Minigun
 var globalconfig string BlockedClassPaths;
 var dw_WeaponsProfile CurrentProfile;
 
