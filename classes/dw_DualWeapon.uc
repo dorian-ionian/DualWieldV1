@@ -2304,24 +2304,41 @@ simulated function bool NeedsTickHack(Weapon w)
 // Diagnostic: logs only when the owner pawn's Inventory chain contains a cycle.
 simulated function CheckPawnChain(string Where)
 {
-    local Inventory Slow, Fast;
+    local dw_WeaponsModuleDefault WM;
 
-    if (bChainLoopLogged || Pawn(Owner) == None || Pawn(Owner).Inventory == None)
+    if (bChainLoopLogged)
         return;
 
-    Slow = Pawn(Owner).Inventory;
-    Fast = Slow;
+    if (Pawn(Owner) != None && ChainLoops(Pawn(Owner).Inventory, Where, "pawn chain"))
+        return;
+
+    WM = dw_WeaponsModuleDefault(M_Weapons);
+    if (WM != None)
+        ChainLoops(WM.DuplicateList, Where, "DuplicateList");
+}
+
+// Floyd cycle check on one Inventory chain; logs the first loop found
+simulated function bool ChainLoops(Inventory Head, string Where, string Label)
+{
+    local Inventory Slow, Fast;
+
+    if (Head == None)
+        return false;
+
+    Slow = Head;
+    Fast = Head;
     while (Fast != None && Fast.Inventory != None)
     {
         Fast = Fast.Inventory.Inventory;
         Slow = Slow.Inventory;
         if (Fast != None && Fast == Slow)
         {
-            Log("DualWieldV1 chain loop at "$Where$": node "$Slow$" ("$Slow.Class$") links back into the chain; owner "$Owner);
+            Log("DualWieldV1 chain loop at "$Where$": "$Label$" node "$Slow$" ("$Slow.Class$") links back into the chain; owner "$Owner);
             bChainLoopLogged = true;
-            return;
+            return true;
         }
     }
+    return false;
 }
 
 simulated function Weapon NextWeapon(Weapon CurrentChoice, Weapon CurrentWeapon)
