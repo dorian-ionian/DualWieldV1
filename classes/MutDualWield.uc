@@ -61,6 +61,9 @@ function ModifyPlayer(Pawn Other)
         Initialize();
 
     DualWeaponClass.static.GiveDualWeapon(Other, Level.Game.BaseMutator);
+
+    if (dw_DualWeapon(Other.FindInventoryType(class'dw_DualWeapon')) != none)
+        dw_DualWeapon(Other.FindInventoryType(class'dw_DualWeapon')).CheckPawnChain("MutDualWield.ModifyPlayer");
 }
 
 function bool CheckReplacement(Actor Other, out byte bSuperRelevant)

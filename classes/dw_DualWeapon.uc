@@ -22,6 +22,7 @@ var dw_RenderingModule M_Rendering; // handles rendering of weapons/hud
 var dw_FiringModule    M_Firing;    // handles firing mechanisms
 var dw_WeaponsModule   M_Weapons;   // handles weapon selection/switching & restrictions
 var dw_ControlModule   M_Control;   // handles control mechanisms/input
+var bool bChainLoopLogged;          // diagnostic: log the first pawn chain loop only
 
 
 var Weapon Weapons[2]; // weapons in left and right hands
@@ -628,7 +629,8 @@ simulated function ChangedSubWeapons()
 function BroadcastOwnerEvent(name EventName, Weapon W)
 {
     local Weapon oldWeap;
-    
+
+    CheckPawnChain("BroadcastOwnerEvent "$EventName);
     oldWeap = Instigator.Weapon;
     Instigator.Weapon = W;
     
@@ -643,6 +645,7 @@ function SendOwnerEvent(name EventName, Weapon w)
     local Inventory oldInventory;
     local Weapon oldWeap;
 
+    CheckPawnChain("SendOwnerEvent "$EventName);
     oldWeap = Instigator.Weapon;
     Instigator.Weapon = w; // make sure 'w' knows it's the current weapon
 
@@ -2303,7 +2306,7 @@ simulated function CheckPawnChain(string Where)
 {
     local Inventory Slow, Fast;
 
-    if (Pawn(Owner) == None || Pawn(Owner).Inventory == None)
+    if (bChainLoopLogged || Pawn(Owner) == None || Pawn(Owner).Inventory == None)
         return;
 
     Slow = Pawn(Owner).Inventory;
@@ -2315,6 +2318,7 @@ simulated function CheckPawnChain(string Where)
         if (Fast != None && Fast == Slow)
         {
             Log("DualWieldV1 chain loop at "$Where$": node "$Slow$" ("$Slow.Class$") links back into the chain; owner "$Owner);
+            bChainLoopLogged = true;
             return;
         }
     }
