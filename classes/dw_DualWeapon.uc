@@ -2298,8 +2298,31 @@ simulated function bool NeedsTickHack(Weapon w)
     return false;
 }
 
+// Diagnostic: logs only when the owner pawn's Inventory chain contains a cycle.
+simulated function CheckPawnChain(string Where)
+{
+    local Inventory Slow, Fast;
+
+    if (Pawn(Owner) == None || Pawn(Owner).Inventory == None)
+        return;
+
+    Slow = Pawn(Owner).Inventory;
+    Fast = Slow;
+    while (Fast != None && Fast.Inventory != None)
+    {
+        Fast = Fast.Inventory.Inventory;
+        Slow = Slow.Inventory;
+        if (Fast != None && Fast == Slow)
+        {
+            Log("DualWieldV1 chain loop at "$Where$": node "$Slow$" ("$Slow.Class$") links back into the chain; owner "$Owner);
+            return;
+        }
+    }
+}
+
 simulated function Weapon NextWeapon(Weapon CurrentChoice, Weapon CurrentWeapon)
 {
+    CheckPawnChain("NextWeapon");
     if (!bNoVoluntarySwitch)
         return super.NextWeapon(CurrentChoice, CurrentWeapon);
 
@@ -2311,6 +2334,7 @@ simulated function Weapon NextWeapon(Weapon CurrentChoice, Weapon CurrentWeapon)
 
 simulated function Weapon PrevWeapon(Weapon CurrentChoice, Weapon CurrentWeapon)
 {
+    CheckPawnChain("PrevWeapon");
     if (!bNoVoluntarySwitch)
         return super.PrevWeapon(CurrentChoice, CurrentWeapon);
 

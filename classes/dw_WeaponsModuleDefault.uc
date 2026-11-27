@@ -676,6 +676,7 @@ function bool GiveDuplicate(class<Weapon> WeaponType, optional WeaponPickup item
         dup.Inventory = DuplicateList;
     DuplicateList = dup;
 
+    DW.CheckPawnChain("GiveDuplicate");
     return true;
 }
 
