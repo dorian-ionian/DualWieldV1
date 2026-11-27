@@ -2298,11 +2298,10 @@ simulated function bool NeedsTickHack(Weapon w)
     return false;
 }
 
+// The container is never a mousewheel stop. Stock Weapon.NextWeapon would select
+// it as a candidate (HasAmmo() is always true), which breaks the wheel for single guns.
 simulated function Weapon NextWeapon(Weapon CurrentChoice, Weapon CurrentWeapon)
 {
-    if (!bNoVoluntarySwitch)
-        return super.NextWeapon(CurrentChoice, CurrentWeapon);
-
 	if ( Inventory == None )
 		return CurrentChoice;
 	else
@@ -2311,9 +2310,6 @@ simulated function Weapon NextWeapon(Weapon CurrentChoice, Weapon CurrentWeapon)
 
 simulated function Weapon PrevWeapon(Weapon CurrentChoice, Weapon CurrentWeapon)
 {
-    if (!bNoVoluntarySwitch)
-        return super.PrevWeapon(CurrentChoice, CurrentWeapon);
-
 	if ( Inventory == None )
 		return CurrentChoice;
 	else
